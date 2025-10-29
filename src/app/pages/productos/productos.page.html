@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Gestión de Productos</ion-title>
+     <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon name="log-in-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form (ngSubmit)="agregarProducto()">
+    <ion-item>
+      <ion-input [(ngModel)]="nuevoProducto.nombre" name="nombre" placeholder="Nombre del producto"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input [(ngModel)]="nuevoProducto.precio" name="precio" type="number" placeholder="Precio"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input [(ngModel)]="nuevoProducto.categoria" name="categoria" placeholder="Categoría"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input [(ngModel)]="nuevoProducto.stock" name="stock" type="number" placeholder="Stock"></ion-input>
+    </ion-item>
+    <ion-button expand="full" type="submit">Agregar Producto</ion-button>
+  </form>
+
+  <ion-list>
+    <ion-item *ngFor="let p of productos">
+      <ion-label>
+        <h2>{{ p.nombre }}</h2>
+        <p>Precio: ${{ p.precio }} | Stock: {{ p.stock }}</p>
+      </ion-label>
+      <ion-button color="danger" (click)="eliminarProducto(p.id)">Eliminar</ion-button>
+    </ion-item>
+  </ion-list>
+</ion-content>

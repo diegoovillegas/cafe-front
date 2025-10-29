@@ -1,0 +1,44 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Reportes de Ventas</ion-title>
+     <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon name="log-in-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-item>
+    <ion-label>Fecha Inicio</ion-label>
+    <ion-datetime [(ngModel)]="fechaInicio" displayFormat="DD/MM/YYYY"></ion-datetime>
+  </ion-item>
+
+  <ion-item>
+    <ion-label>Fecha Fin</ion-label>
+    <ion-datetime [(ngModel)]="fechaFin" displayFormat="DD/MM/YYYY"></ion-datetime>
+  </ion-item>
+
+  <ion-button expand="full" (click)="filtrarVentas()">Filtrar</ion-button>
+
+  <ion-list>
+    <ion-item *ngFor="let venta of ventas">
+      <ion-label>
+        <h2>{{ venta.attributes.producto.data.attributes.nombre }}</h2>
+        <p>Precio: ${{ venta.attributes.precio }}</p>
+        <p>Cantidad: {{ venta.attributes.cantidad }}</p>
+        <p>Fecha: {{ venta.attributes.fecha | date:'short' }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <ion-card *ngIf="totalVentas >= 0">
+    <ion-card-header>
+      <ion-card-title>Total Ventas</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      ${{ totalVentas }}
+    </ion-card-content>
+  </ion-card>
+</ion-content>

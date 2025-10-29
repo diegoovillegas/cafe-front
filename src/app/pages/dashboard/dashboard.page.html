@@ -1,0 +1,69 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Dashboard Cafetería</ion-title>
+     <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon name="log-in-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- Resumen de productos -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Productos</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let p of productos | slice:0:5">
+          {{ p.nombre }} - ${{ p.precio }} - Stock: {{ p.stock }}
+        </ion-item>
+      </ion-list>
+      <p *ngIf="productos.length > 5">+{{ productos.length - 5 }} productos más...</p>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Resumen de ventas -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Ventas recientes</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let v of ventas | slice:0:5">
+          {{ v.attributes.producto.data.attributes.nombre }} x {{ v.attributes.cantidad }} - ${{ v.attributes.precio * v.attributes.cantidad }}
+        </ion-item>
+      </ion-list>
+      <p *ngIf="ventas.length > 5">+{{ ventas.length - 5 }} ventas más...</p>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Total de ventas -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Total Ventas</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      ${{ totalVentas }}
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Inventario bajo stock -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Productos con bajo stock</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let p of bajoStock">
+          {{ p.nombre }} - Stock: {{ p.stock }}
+        </ion-item>
+        <p *ngIf="bajoStock.length === 0">No hay productos con bajo stock</p>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

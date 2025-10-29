@@ -1,0 +1,24 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Inventario</ion-title>
+     <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon name="log-in-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-list>
+    <ion-item *ngFor="let item of inventario">
+      <ion-label>
+        <h2>{{ item.attributes.nombre }}</h2>
+        <p>Stock: {{ item.attributes.stock }}</p>
+        <p *ngIf="item.attributes.stock <= alertaStock" style="color: red;">
+          ¡Stock bajo!
+        </p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>
