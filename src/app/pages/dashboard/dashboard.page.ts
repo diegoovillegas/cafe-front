@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from 'src/app/services/aapi.service';
 import { Router } from '@angular/router';
+import { Chart } from 'chart.js';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,29 +13,25 @@ export class DashboardPage implements OnInit {
 
   productos: any[] = [];
   ventas: any[] = [];
-  totalVentas: number = 0;
   bajoStock: any[] = [];
+  totalVentas: number = 0;
+
+  ventasChart: any;
 
   constructor(private api: ApiService, private router: Router) {}
 
   async ngOnInit() {
     await this.cargarDatos();
+    this.renderChart();
   }
 
   async cargarDatos() {
     try {
-      // Productos
       this.productos = await this.api.getProductos();
-      console.log("Productos:", this.productos);
-
-      // Stock bajo (<=5)
       this.bajoStock = this.productos.filter(p => p.stock <= 5);
 
-      // Ventas
       this.ventas = await this.api.getVentas();
-      console.log("Ventas:", this.ventas);
 
-      // Total de ventas (ya no usamos attributes)
       this.totalVentas = this.ventas.reduce((acc, v) => {
         const precio = v.precio ?? 0;
         const cantidad = v.cantidad ?? 1;
@@ -42,11 +39,34 @@ export class DashboardPage implements OnInit {
       }, 0);
 
     } catch (err) {
-      console.error('Error al cargar dashboard:', err);
+      console.error("Error en dashboard:", err);
     }
   }
 
-  async logout() {
+  renderChart() {
+    const canvas: any = document.getElementById('ventasChart');
+
+    if (this.ventasChart) this.ventasChart.destroy();
+
+    this.ventasChart = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: this.ventas.map(v => v.fecha ?? 'Sin fecha'),
+        datasets: [{
+          label: 'Monto de Venta',
+          data: this.ventas.map(v => v.precio * v.cantidad),
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  }
+
+  logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.router.navigateByUrl('/login');

@@ -1,21 +1,22 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-title>Ventas</ion-title>
-     <ion-buttons slot="end">
+    <ion-buttons slot="end">
       <ion-button (click)="logout()">
-        <ion-icon name="log-in-outline"></ion-icon>
+        <ion-icon name="log-out-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
+
   <!-- Selección de producto -->
   <ion-item>
     <ion-label>Producto</ion-label>
     <ion-select [(ngModel)]="ventaSeleccionada.productoId">
-      <ion-select-option *ngFor="let p of productos" [value]="p.id">
-        {{ p.attributes.nombre }} - ${{ p.attributes.precio }} (Stock: {{ p.attributes.stock }})
+      <ion-select-option *ngFor="let p of productos" [value]="p.documentId">
+        {{ p.nombre }} - ${{ p.precio }} (Stock: {{ p.stock }})
       </ion-select-option>
     </ion-select>
   </ion-item>
@@ -26,17 +27,18 @@
     <ion-input type="number" [(ngModel)]="ventaSeleccionada.cantidad"></ion-input>
   </ion-item>
 
-  <!-- Botón de registrar venta -->
   <ion-button expand="full" (click)="registrarVenta()">Registrar Venta</ion-button>
 
+  <!-- Lista de ventas -->
   <ion-list>
     <ion-item *ngFor="let v of ventas">
       <ion-label>
-        <h2>{{ v.attributes.producto.data.attributes.nombre }}</h2>
-        <p>Cantidad: {{ v.attributes.cantidad }}</p>
-        <p>Total: ${{ v.attributes.cantidad * v.attributes.precio }}</p>
-        <p>Fecha: {{ v.attributes.fecha | date:'short' }}</p>
+        <h2>{{ v.producto?.nombre }}</h2>
+        <p>Cantidad: {{ v.cantidad }}</p>
+        <p>Total: ${{ v.cantidad * v.precio }}</p>
+        <p>Fecha: {{ v.fecha | date:'short' }}</p>
       </ion-label>
     </ion-item>
   </ion-list>
+
 </ion-content>

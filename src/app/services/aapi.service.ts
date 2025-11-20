@@ -99,30 +99,52 @@ export class ApiService {
   // 💲 VENTAS
   // ======================================
 
-  async registrarVenta(data: any) {
-    try {
-      const res = await axios.post(`${this.apiUrl}/ventas`, { data }, {
-        headers: this.getAuthHeaders()
-      });
-      return res.data;
-    } catch (err) {
-      this.showToast('Error al registrar venta');
-      throw err;
-    }
-  }
+ async registrarVenta(data: any) {
+  try {
+    const res = await axios.post(`${this.apiUrl}/ventas`, { data }, {
+      headers: this.getAuthHeaders()
+    });
+    return res.data;
+  } catch (err) {
+    this.showToast('Error al registrar venta');
+    throw err;
+  }
+}
 
-  async getVentas() {
-    try {
-      // Función usada por el Dashboard para cálculos de ventas
-      const res = await axios.get(`${this.apiUrl}/ventas?populate=*`, {
-        headers: this.getAuthHeaders()
-      });
-      return res.data.data;
-    } catch (err) {
-      this.showToast('Error al obtener ventas');
-      throw err;
-    }
-  }
+async getVentas() {
+  try {
+    const res = await axios.get(`${this.apiUrl}/ventas?populate=*`, {
+      headers: this.getAuthHeaders()
+    });
+
+    return res.data.data.map((v: any) => {
+      
+      // Caso 1: Estructura con attributes
+      if (v.attributes) {
+        return {
+          id: v.id,
+          ...v.attributes,
+          producto: v.attributes.producto?.data?.attributes || null
+        };
+      }
+
+      // Caso 2: Estructura PLANA sin attributes (como tu API)
+      return {
+        id: v.id,
+        ...v,
+        producto: v.producto || null
+      };
+    });
+
+  } catch (err) {
+    this.showToast('Error al obtener ventas');
+    throw err;
+  }
+}
+
+
+
+
 
   // ======================================
   // 📦 INVENTARIO

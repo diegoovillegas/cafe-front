@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
   standalone: false
 })
 export class VentasPage implements OnInit {
+
   productos: any[] = [];
   ventas: any[] = [];
 
@@ -41,43 +42,53 @@ export class VentasPage implements OnInit {
   }
 
   async registrarVenta() {
-    if (!this.ventaSeleccionada.productoId || this.ventaSeleccionada.cantidad <= 0) {
-      alert('Seleccione un producto y cantidad válida');
+    const { productoId, cantidad } = this.ventaSeleccionada;
+
+    if (!productoId || cantidad <= 0) {
+      alert('Seleccione un producto y una cantidad válida');
       return;
     }
 
-    const producto = this.productos.find(p => p.id === this.ventaSeleccionada.productoId);
-    if (producto.attributes.stock < this.ventaSeleccionada.cantidad) {
+    const producto = this.productos.find(p => p.documentId === productoId);
+
+    if (!producto) {
+      alert('Producto no encontrado');
+      return;
+    }
+
+    // Validar stock
+    if (producto.stock < cantidad) {
       alert('Stock insuficiente');
       return;
     }
 
     const data = {
-      producto: this.ventaSeleccionada.productoId,
-      cantidad: this.ventaSeleccionada.cantidad,
-      precio: producto.attributes.precio,
-      fecha: new Date()
+      producto: productoId,
+      cantidad,
+      precio: producto.precio,
+      fecha: new Date().toISOString()
     };
 
     try {
       await this.api.registrarVenta(data);
 
-      // Actualizar inventario localmente para refrescar la lista de productos
-      producto.attributes.stock -= this.ventaSeleccionada.cantidad;
+      // Actualizar stock localmente
+      producto.stock -= cantidad;
 
       // Reset del formulario
       this.ventaSeleccionada = { productoId: null, cantidad: 1 };
 
       // Recargar ventas
       await this.cargarVentas();
+
     } catch (err) {
       console.error('Error al registrar venta:', err);
     }
   }
 
-    async logout(){
+  logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    this.router.navigateByUrl('/login')
+    this.router.navigateByUrl('/login');
   }
 }
