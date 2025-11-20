@@ -23,8 +23,8 @@ const routes: Routes = [
   },
   {
     path: 'reset-password',
-    loadChildren: () => import('./pages/login/reset-password/reset-password.module').then( m => m.ResetPasswordPageModule),
-    canActivate: [authGuard]
+    loadChildren: () => import('./pages/login/reset-password/reset-password.module').then( m => m.ResetPasswordPageModule)
+    
   },
   {
     path: 'productos',

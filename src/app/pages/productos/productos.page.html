@@ -1,16 +1,46 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-title>Gestión de Productos</ion-title>
-     <ion-buttons slot="end">
+    <ion-buttons slot="end">
       <ion-button (click)="logout()">
-        <ion-icon name="log-in-outline"></ion-icon>
+        <ion-icon name="log-out-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <form (ngSubmit)="agregarProducto()">
+
+  <form *ngIf="isEditing" (ngSubmit)="guardarEdicion()">
+    <h2>Editar Producto</h2>
+    <ion-item>
+      <ion-input [(ngModel)]="productoAEditar.nombre" name="editNombre" placeholder="Nombre"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input [(ngModel)]="productoAEditar.precio" name="editPrecio" type="number" placeholder="Precio"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input [(ngModel)]="productoAEditar.categoria" name="editCategoria" placeholder="Categoría"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input [(ngModel)]="productoAEditar.stock" name="editStock" type="number" placeholder="Stock"></ion-input>
+    </ion-item>
+    
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6">
+          <ion-button expand="full" color="success" type="submit">Guardar Cambios</ion-button>
+        </ion-col>
+        <ion-col size="6">
+          <ion-button expand="full" color="medium" (click)="cancelarEdicion()">Cancelar</ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    <hr>
+  </form>
+
+  <form *ngIf="!isEditing" (ngSubmit)="agregarProducto()">
+    <h2>Agregar Nuevo Producto</h2>
     <ion-item>
       <ion-input [(ngModel)]="nuevoProducto.nombre" name="nombre" placeholder="Nombre del producto"></ion-input>
     </ion-item>
@@ -24,15 +54,24 @@
       <ion-input [(ngModel)]="nuevoProducto.stock" name="stock" type="number" placeholder="Stock"></ion-input>
     </ion-item>
     <ion-button expand="full" type="submit">Agregar Producto</ion-button>
+    <hr>
   </form>
 
   <ion-list>
     <ion-item *ngFor="let p of productos">
       <ion-label>
-        <h2>{{ p.nombre }}</h2>
-        <p>Precio: ${{ p.precio }} | Stock: {{ p.stock }}</p>
+        <h2>{{ p.attributes?.nombre || p.nombre }}</h2>
+        <p>Precio: ${{ p.attributes?.precio || p.precio }} | Stock: {{ p.attributes?.stock || p.stock }}</p>
       </ion-label>
-      <ion-button color="danger" (click)="eliminarProducto(p.id)">Eliminar</ion-button>
+      
+      <ion-buttons slot="end">
+        <ion-button color="primary" (click)="iniciarEdicion(p)" [disabled]="isEditing">
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-button>
+        <ion-button color="danger" (click)="eliminarProducto(p.documentId)" [disabled]="isEditing">
+          <ion-icon name="trash-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
     </ion-item>
   </ion-list>
 </ion-content>

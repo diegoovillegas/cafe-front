@@ -1,69 +1,142 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>Dashboard Cafetería</ion-title>
-     <ion-buttons slot="end">
-      <ion-button (click)="logout()">
-        <ion-icon name="log-in-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-split-pane contentId="main-content" when="md">
 
-<ion-content class="ion-padding">
+  <ion-menu contentId="main-content" menuId="main-menu" type="overlay">
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Admin del Restaurante</ion-title>
+      </ion-toolbar>
+    </ion-header>
 
-  <!-- Resumen de productos -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Productos</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-list>
-        <ion-item *ngFor="let p of productos | slice:0:5">
-          {{ p.nombre }} - ${{ p.precio }} - Stock: {{ p.stock }}
+    <ion-content>
+      <ion-list lines="none">
+        <ion-item routerLink="/panel" routerLinkActive="selected" detail="false">
+          <ion-icon slot="start" name="home-outline"></ion-icon>
+          <ion-label>Panel</ion-label>
+        </ion-item>
+        <ion-item routerLink="/productos" detail="false">
+          <ion-icon slot="start" name="pricetags-outline"></ion-icon>
+          <ion-label>Productos</ion-label>
+        </ion-item>
+        <ion-item routerLink="/ventas" detail="false">
+          <ion-icon slot="start" name="cash-outline"></ion-icon>
+          <ion-label>Ventas</ion-label>
+        </ion-item>
+        <ion-item routerLink="/usuarios" detail="false">
+          <ion-icon slot="start" name="people-outline"></ion-icon>
+          <ion-label>Usuarios</ion-label>
         </ion-item>
       </ion-list>
-      <p *ngIf="productos.length > 5">+{{ productos.length - 5 }} productos más...</p>
-    </ion-card-content>
-  </ion-card>
 
-  <!-- Resumen de ventas -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Ventas recientes</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-list>
-        <ion-item *ngFor="let v of ventas | slice:0:5">
-          {{ v.attributes.producto.data.attributes.nombre }} x {{ v.attributes.cantidad }} - ${{ v.attributes.precio * v.attributes.cantidad }}
+      <ion-list lines="none" class="ion-margin-top settings-link">
+        <ion-item button routerLink="/ajustes" detail="false">
+          <ion-icon slot="start" name="settings-outline"></ion-icon>
+          <ion-label>Ajustes</ion-label>
         </ion-item>
       </ion-list>
-      <p *ngIf="ventas.length > 5">+{{ ventas.length - 5 }} ventas más...</p>
-    </ion-card-content>
-  </ion-card>
+    </ion-content>
+  </ion-menu>
 
-  <!-- Total de ventas -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Total Ventas</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      ${{ totalVentas }}
-    </ion-card-content>
-  </ion-card>
+  <div class="ion-page" id="main-content">
+    <ion-header>
+      <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+          <ion-menu-button></ion-menu-button>
+        </ion-buttons>
+        <ion-title>Dashboard Cafetería</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="logout()">
+            <ion-icon name="log-in-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
 
-  <!-- Inventario bajo stock -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Productos con bajo stock</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-list>
-        <ion-item *ngFor="let p of bajoStock">
-          {{ p.nombre }} - Stock: {{ p.stock }}
-        </ion-item>
-        <p *ngIf="bajoStock.length === 0">No hay productos con bajo stock</p>
-      </ion-list>
-    </ion-card-content>
-  </ion-card>
+    <ion-content class="ion-padding dashboard-content">
+      <h1>Panel</h1>
 
-</ion-content>
+      <ion-grid>
+        <ion-row>
+
+          <!-- Ventas Totales REALES -->
+          <ion-col size="12" size-md="4">
+            <ion-card class="summary-card">
+              <ion-card-header>
+                <ion-card-title class="card-label">Ventas Totales</ion-card-title>
+                <ion-card-subtitle class="card-value">${{ totalVentas }}</ion-card-subtitle>
+              </ion-card-header>
+            </ion-card>
+          </ion-col>
+
+          <!-- Pedidos Hoy REALES -->
+          <ion-col size="12" size-md="4">
+            <ion-card class="summary-card">
+              <ion-card-header>
+                <ion-card-title class="card-label">Pedidos Hoy</ion-card-title>
+                <ion-card-subtitle class="card-value">{{ ventas.length }}</ion-card-subtitle>
+              </ion-card-header>
+            </ion-card>
+          </ion-col>
+
+          <!-- Valor Promedio REAL -->
+          <ion-col size="12" size-md="4">
+            <ion-card class="summary-card">
+              <ion-card-header>
+                <ion-card-title class="card-label">Valor Promedio del Pedido</ion-card-title>
+                <ion-card-subtitle class="card-value">
+                  ${{ totalVentas / (ventas.length || 1) | number:'1.0-0' }}
+                </ion-card-subtitle>
+              </ion-card-header>
+            </ion-card>
+          </ion-col>
+
+        </ion-row>
+      </ion-grid>
+
+      <!-- Resumen de ventas -->
+      <div class="ion-margin-top">
+        <h2>Resumen de Ventas</h2>
+        <ion-card class="sales-trend-card">
+          <ion-card-header>
+            <ion-card-title>Tendencia de Ventas</ion-card-title>
+            <ion-card-subtitle class="sales-trend-value">${{ totalVentas }}</ion-card-subtitle>
+            <p class="ion-text-sm">Últimos 30 Días</p>
+          </ion-card-header>
+          <ion-card-content>
+            <div style="height: 150px; background-color: #f0f0f0; border-radius: 4px;">
+              [Aquí iría el gráfico de tendencias]
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <!-- Alertas de Inventario -->
+      <div class="ion-margin-top">
+        <h2>Alertas de Inventario</h2>
+        <ion-card>
+          <ion-card-content>
+            <ion-list>
+
+              <!-- Encabezado -->
+              <ion-item class="table-header">
+                <ion-label>Producto</ion-label>
+                <ion-label class="ion-text-end">Cantidad</ion-label>
+                <ion-label class="ion-text-end">Estado</ion-label>
+              </ion-item>
+
+              <!-- Productos reales con stock bajo -->
+              <ion-item *ngFor="let item of bajoStock">
+                <ion-label>{{ item.attributes.nombre }}</ion-label>
+                <ion-label class="ion-text-end">{{ item.attributes.stock }}</ion-label>
+                <ion-label class="status-badge stock-bajo ion-text-end">
+                  Stock Bajo
+                </ion-label>
+              </ion-item>
+
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+    </ion-content>
+  </div>
+</ion-split-pane>

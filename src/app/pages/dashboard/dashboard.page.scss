@@ -1,0 +1,138 @@
+/* Estilos para el Menú Lateral */
+ion-menu {
+    --width: 250px;
+    /* Color de fondo del menú, similar al de la imagen */
+    --background: #f8f8f8; 
+}
+
+ion-menu ion-item {
+    /* Estilo de los ítems del menú */
+    --background-hover: #e0e0e0;
+    --border-radius: 0;
+}
+
+ion-menu ion-item.selected {
+    /* Estilo para el ítem seleccionado (Panel) */
+    font-weight: bold;
+    color: var(--ion-color-primary, #3880ff);
+    background-color: #e0e0e0; 
+}
+
+/* Estilos para el Contenido Principal */
+.dashboard-content {
+    /* Quita el padding predeterminado del ion-content si quieres que el grid vaya de borde a borde */
+    --padding-start: 0;
+    --padding-end: 0;
+    --padding-top: 0;
+    --padding-bottom: 0;
+}
+
+/* Encabezados y títulos */
+h1 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    padding: 0 16px; /* Para que coincida con el ion-padding en móviles */
+}
+
+h2 {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 24px;
+    margin-bottom: 16px;
+    padding: 0 16px;
+}
+
+/* Tarjetas de Resumen Superior */
+.summary-card {
+    /* Color de fondo suave para las tarjetas superiores */
+    background-color: #f0f0f0; 
+    box-shadow: none; /* Elimina la sombra para un look más plano */
+    margin: 8px 16px; /* Ajusta los márgenes */
+}
+
+.summary-card ion-card-header {
+    padding: 16px;
+}
+
+.summary-card .card-label {
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.summary-card .card-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Tendencia de Ventas */
+.sales-trend-card {
+    margin: 8px 16px;
+}
+
+.sales-trend-card ion-card-subtitle.sales-trend-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: #333;
+    margin-top: 0;
+}
+
+/* Alertas de Inventario (Simulando una tabla) */
+ion-item.table-header {
+    font-weight: bold;
+    --background: #e0e0e0; /* Fondo para el encabezado de la tabla */
+}
+
+.status-badge {
+    /* Estilos base para las etiquetas de estado */
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    width: 100px; /* Ancho fijo para alineación */
+    text-align: center;
+}
+
+.stock-bajo {
+    background-color: #fff3cd; /* Amarillo claro */
+    color: #856404;
+}
+
+.agotado {
+    background-color: #f8d7da; /* Rojo claro */
+    color: #721c24;
+}
+
+.suficiente {
+    background-color: #d4edda; /* Verde claro */
+    color: #155724;
+}
+
+/* Media Query para el diseño de escritorio/tablet (cuando ion-split-pane está abierto) */
+@media (min-width: 768px) {
+    /* Alineación de H1 y H2 cuando el menú lateral está fijo */
+    h1, h2 {
+        padding-left: 0; 
+    }
+    
+    /* Eliminar padding del ion-content cuando está en modo split-pane */
+    #main-content > ion-content {
+        --padding-start: 16px;
+        --padding-end: 16px;
+    }
+
+    /* Quitar padding de las tarjetas dentro del grid */
+    ion-grid {
+        padding: 0 8px;
+    }
+    
+    .summary-card {
+        margin: 8px; /* Reducir márgenes laterales */
+    }
+    
+    .sales-trend-card {
+        margin: 8px 0;
+    }
+}

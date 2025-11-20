@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ApiService } from 'src/app/services/aapi.service';
 import { Router } from '@angular/router';
 
-
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
@@ -10,12 +9,13 @@ import { Router } from '@angular/router';
   standalone: false
 })
 export class DashboardPage implements OnInit {
+
   productos: any[] = [];
   ventas: any[] = [];
   totalVentas: number = 0;
   bajoStock: any[] = [];
 
-  constructor(private api: ApiService, private router:Router) {}
+  constructor(private api: ApiService, private router: Router) {}
 
   async ngOnInit() {
     await this.cargarDatos();
@@ -23,25 +23,32 @@ export class DashboardPage implements OnInit {
 
   async cargarDatos() {
     try {
-      // Cargar productos
+      // Productos
       this.productos = await this.api.getProductos();
+      console.log("Productos:", this.productos);
 
-      // Identificar productos con stock bajo
+      // Stock bajo (<=5)
       this.bajoStock = this.productos.filter(p => p.stock <= 5);
 
-      // Cargar ventas
+      // Ventas
       this.ventas = await this.api.getVentas();
+      console.log("Ventas:", this.ventas);
 
-      // Calcular total de ventas
-      this.totalVentas = this.ventas.reduce((acc, v) => acc + v.attributes.precio * v.attributes.cantidad, 0);
+      // Total de ventas (ya no usamos attributes)
+      this.totalVentas = this.ventas.reduce((acc, v) => {
+        const precio = v.precio ?? 0;
+        const cantidad = v.cantidad ?? 1;
+        return acc + precio * cantidad;
+      }, 0);
+
     } catch (err) {
       console.error('Error al cargar dashboard:', err);
     }
   }
 
-    async logout(){
+  async logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    this.router.navigateByUrl('/login')
+    this.router.navigateByUrl('/login');
   }
 }

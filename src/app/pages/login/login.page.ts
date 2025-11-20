@@ -92,4 +92,23 @@ export class LoginPage implements OnInit {
     }
 
   }
+
+  // En el componente de login (por ejemplo, LoginPage.ts)
+async handleLogin() {
+  try {
+    // 1. Iniciar sesión y guardar token (ASYNC)
+    const loginData = await this.api.login(this.identifier, this.password);
+    
+    // 2. Esperar un instante o usar un servicio de estado si el storage es lento.
+    // Aunque Storage/localforage son rápidos, este micro-delay a veces soluciona la carrera asíncrona:
+    await new Promise(resolve => setTimeout(resolve, 50)); 
+    
+    // 3. SOLO AHORA se llama a la siguiente función/página que requiere el token.
+    this.router.navigate(['/productos']); 
+
+  } catch (error) {
+    // Manejar error de login
+    console.error('Login Failed', error);
+  }
+}
 }

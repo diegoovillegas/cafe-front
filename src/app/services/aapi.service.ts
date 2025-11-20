@@ -1,126 +1,189 @@
 import { Injectable } from '@angular/core';
-import axios, { AxiosInstance } from 'axios';
+import axios from 'axios';
 import { environment } from '../../environments/environment';
-import { Storage } from '@ionic/storage-angular';
 import { ToastController } from '@ionic/angular';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root'
 })
 export class ApiService {
-  private api: AxiosInstance;
-  private storage: Storage;
 
-  constructor(private toastCtrl: ToastController) {
-    // Configuración de Axios
-    this.api = axios.create({
-      baseURL: environment.apiUrl,
-      timeout: 5000,
-      headers: { 'Content-Type': 'application/json' }
-    });
+  private apiUrl = environment.apiUrl;
 
-    // Crear instancia local de Storage
-    this.storage = new Storage({ name: '__mydb' });
-    this.storage.create();
-  }
+  constructor(private toastCtrl: ToastController) {}
 
-  // --- Autenticación ---
-  async login(identifier: string, password: string) {
-    try {
-      const res = await this.api.post('/auth/local', { identifier, password });
-      await this.storage.set('token', res.data.jwt);
-      await this.storage.set('user', res.data.user);
-      return res.data;
-    } catch (err) {
-      this.showToast('Error al iniciar sesión');
-      throw err;
+  // ======================================
+  // 🔐 AUTHENTICACIÓN
+  // ======================================
+
+  private getAuthHeaders() {
+    // ⚠️ Nota: Esta implementación asume que el token se guarda y recupera de localStorage SÍNCRONAMENTE.
+    const token = localStorage.getItem('token');
+    return token ? { Authorization: 'Bearer ' + token } : {};
+  }
+
+    async login(identifier: string, password: string) {
+        try {
+            const res = await axios.post(`${this.apiUrl}/auth/local`, { identifier, password });
+            // Guarda el token para usarlo en peticiones futuras
+            localStorage.setItem('token', res.data.jwt); 
+            localStorage.setItem('user', JSON.stringify(res.data.user));
+            return res.data;
+        } catch (err) {
+            this.showToast('Error al iniciar sesión');
+            throw err;
+        }
     }
-  }
 
-  async getToken() {
-    return await this.storage.get('token');
-  }
+    // Nota: La función logout generalmente se implementa en un AuthService separado.
+    // Aquí solo borramos el token de localStorage.
+    logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+    }
 
-  private async authHeader() {
-    const token = await this.getToken();
-    return { Authorization: `Bearer ${token}` };
-  }
+  // ======================================
+  // 📦 PRODUCTOS
+  // ======================================
 
-  // --- Productos ---
-  async getProductos() {
-    const res = await this.api.get('/productos?populate=*', {
-      headers: await this.authHeader()
-    });
-    return res.data.data;
-  }
+  async getProductos() {
+    try {
+      // Función usada por el Dashboard para obtener el stock
+      const res = await axios.get(`${this.apiUrl}/productos?populate=*`, {
+        headers: this.getAuthHeaders()
+      });
+      return res.data.data;
+    } catch (err) {
+      this.showToast('Error al obtener productos');
+      throw err;
+    }
+  }
 
-  async addProducto(data: any) {
-    const res = await this.api.post('/productos', { data }, {
-      headers: await this.authHeader()
-    });
-    return res.data;
-  }
+  async addProducto(data: any) {
+    try {
+      const res = await axios.post(`${this.apiUrl}/productos`, { data }, {
+        headers: this.getAuthHeaders()
+      });
+      return res.data;
+    } catch (err) {
+      this.showToast('Error al agregar producto');
+      throw err;
+    }
+  }
 
-  async updateProducto(id: number, data: any) {
-    const res = await this.api.put(`/productos/${id}`, { data }, {
-      headers: await this.authHeader()
-    });
-    return res.data;
-  }
+  async updateProducto(documentId: string, data: any) {
+    try {
+      const res = await axios.put(`${this.apiUrl}/productos/${documentId}`, { data }, {
+        headers: this.getAuthHeaders()
+      });
+      return res.data;
+    } catch (err) {
+      this.showToast('Error al actualizar producto');
+      throw err;
+    }
+  }
 
-  async deleteProducto(id: number) {
-    const res = await this.api.delete(`/productos/${id}`, {
-      headers: await this.authHeader()
-    });
-    return res.data;
-  }
+  async deleteProducto(documentId: string) {
+    try {
+      const res = await axios.delete(`${this.apiUrl}/productos/${documentId}`, {
+        headers: this.getAuthHeaders()
+      });
+      return res.data;
+    } catch (err) {
+      this.showToast('Error al eliminar producto');
+      throw err;
+    }
+  }
 
-  // --- Ventas ---
-  async registrarVenta(data: any) {
-    const res = await this.api.post('/ventas', { data }, {
-      headers: await this.authHeader()
-    });
-    return res.data;
-  }
+  // ======================================
+  // 💲 VENTAS
+  // ======================================
 
-  async getVentas() {
-    const res = await this.api.get('/ventas?populate=*', {
-      headers: await this.authHeader()
-    });
-    return res.data.data;
-  }
+  async registrarVenta(data: any) {
+    try {
+      const res = await axios.post(`${this.apiUrl}/ventas`, { data }, {
+        headers: this.getAuthHeaders()
+      });
+      return res.data;
+    } catch (err) {
+      this.showToast('Error al registrar venta');
+      throw err;
+    }
+  }
 
-  // --- Inventario ---
-  async getInventario() {
-    const res = await this.api.get('/inventarios?populate=*', {
-      headers: await this.authHeader()
-    });
-    return res.data.data;
-  }
+  async getVentas() {
+    try {
+      // Función usada por el Dashboard para cálculos de ventas
+      const res = await axios.get(`${this.apiUrl}/ventas?populate=*`, {
+        headers: this.getAuthHeaders()
+      });
+      return res.data.data;
+    } catch (err) {
+      this.showToast('Error al obtener ventas');
+      throw err;
+    }
+  }
 
-  // --- Reportes ---
-  async getReporte(fechaInicio: string, fechaFin: string) {
-    const res = await this.api.get(`/ventas?filters[fecha][$between]=${fechaInicio},${fechaFin}`, {
-      headers: await this.authHeader()
-    });
-    return res.data.data;
-  }
+  // ======================================
+  // 📦 INVENTARIO
+  // ======================================
 
-  // --- Usuarios ---
-  async getUsuarios() {
-    const res = await this.api.get('/users', {
-      headers: await this.authHeader()
-    });
-    return res.data;
-  }
+  async getInventario() {
+    try {
+      // Función usada por el Dashboard (si fuera necesario, aunque ya se obtiene por getProductos)
+      const res = await axios.get(`${this.apiUrl}/inventarios?populate=*`, {
+        headers: this.getAuthHeaders()
+      });
+      return res.data.data;
+    } catch (err) {
+      this.showToast('Error al obtener inventario');
+      throw err;
+    }
+  }
 
-  // --- Utilidades ---
-  private async showToast(msg: string) {
-    const toast = await this.toastCtrl.create({
-      message: msg,
-      duration: 2000,
-      color: 'danger'
-    });
-    toast.present();
-  }
+  // ======================================
+  // 📊 REPORTES
+  // ======================================
+
+  async getReporte(fechaInicio: string, fechaFin: string) {
+    try {
+      const res = await axios.get(
+        `${this.apiUrl}/ventas?filters[fecha][$between]=${fechaInicio},${fechaFin}`,
+        { headers: this.getAuthHeaders() }
+      );
+      return res.data.data;
+    } catch (err) {
+      this.showToast('Error al generar reporte');
+      throw err;
+    }
+  }
+
+  // ======================================
+  // 👤 USUARIOS
+  // ======================================
+
+  async getUsuarios() {
+    try {
+      const res = await axios.get(`${this.apiUrl}/users`, {
+        headers: this.getAuthHeaders()
+      });
+      return res.data;
+    } catch (err) {
+      this.showToast('Error al obtener usuarios');
+      throw err;
+    }
+  }
+
+  // ======================================
+  // 🔔 TOAST
+  // ======================================
+
+  private async showToast(msg: string) {
+    const toast = await this.toastCtrl.create({
+      message: msg,
+      duration: 2000,
+      color: 'danger'
+    });
+    toast.present();
+  }
 }
